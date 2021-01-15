@@ -77,7 +77,6 @@ function chooseOpt() {
             default:
                 // dbConnector.end();
                 chooseOpt();
-
         }
     });
 }
@@ -100,7 +99,7 @@ dbConnector.connect(err => {
 
         // Function for inquirer prompt (below)
         chooseOpt();
-    })
+})
 
 // })
 

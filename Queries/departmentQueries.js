@@ -16,8 +16,9 @@ function showDepts() {
     })
 
     // Return to the choice prompt
-    chooseOpt();
+    chooseOpt;
 };
+
 
 // Functon to add a deparment
 function addDept() {
@@ -38,14 +39,13 @@ function addDept() {
     ).then(toAdd => {
         let newDept = toAdd.newName;
         const sqlInsert = `INSERT INTO department SET name=?`;
-        //sql consult insert
         dbConnector.query(sqlInsert, [newDept], (err, res) => {
             if (err) throw err;
   
-            //print the info tell the user 1 department was inserted
+            // Confirmed new dept was added
             console.log("New department successfully added!");
   
-            //call the menu for show a question again
+            // Return to choice prompt
             chooseOpt();
         })
     })
