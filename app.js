@@ -5,8 +5,9 @@ const inquirer = require('inquirer');
 const dbConnector = require('./index');
 
 // Imports
-const { showDepts, addDept, deleteDept } = require('./Queries/departmentQueries');
-// const { showRoles } = require('./Queries/roleQueries');
+// const { allDepts, addDept, deleteDept } = require('./Queries/departmentQueries');
+// const { allRoles, addRole, deleteRole } = require('./Queries/roleQueries');
+const { allEmps, addEmp, deleteEmp, updateRole } = require('./Queries/employeeQueries');
 
 // Prompts to confirm what the user wishes to do
 function chooseOpt() {
@@ -17,16 +18,16 @@ function chooseOpt() {
                 type: 'list',
                 message: 'Please choose an element to execute from the options below.',
                 choices: [
-                    'View all departments',
-                    'Add department',
-                    'Delete department',
-                    'View all roles',
+                    // 'View all departments',
+                    // 'Add department',
+                    // 'Delete department',
+                    // 'View all roles',
                     // 'Add role',
                     // 'Delete role',
-                    // 'View all employees',
-                    // 'Add employee',
-                    // 'Delete employee',
-                    // 'Update employee role',
+                    'View all employees',
+                    'Add employee',
+                    'Delete employee',
+                    'Update employee role',
                     // 'Exit'
                 ]
             }
@@ -35,11 +36,9 @@ function chooseOpt() {
         switch (opt.selectElement) {
             case 'View all departments':
                 showDepts();
-                // looper();
                 break;
             case 'Add department':
                 addDept();
-                // looper();
                 break;
             case 'Delete department':
                 deleteDept();
@@ -53,18 +52,18 @@ function chooseOpt() {
             // case 'Delete role':
             //     deleteRole();
             //     break;
-            // case 'View all employees':
-            //     allEmployees();
-            //     break;
-            // case 'Add employee':
-            //     addEmployee();
-            //     break;
-            // case 'Delete employee':
-            //     deleteEmployee();
-            //     break;
-            // case 'Update employee role':
-            //     updateRole();
-            //     break;
+            case 'View all employees':
+                allEmps();
+                break;
+            case 'Add employee':
+                addEmp();
+                break;
+            case 'Delete employee':
+                deleteEmp();
+                break;
+            case 'Update employee role':
+                updateRole();
+                break;
             // case `Update a Employee manager's name`:
             //     updateEmpManager()
             //     break;
@@ -75,18 +74,11 @@ function chooseOpt() {
             // dbConnector.end();
 
             default:
-                // dbConnector.end();
                 chooseOpt();
 
         }
     });
 }
-
-// function allRoles() {
-//     const rows = showRoles();
-//     console.table(rows);
-//     chooseOpt();
-// }
 
 // Default response for any other request not found
 dbConnector.connect(err => {
