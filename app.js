@@ -1,12 +1,12 @@
 // Dependencies
 const inquirer = require('inquirer');
 
-// const mysql = require('mysql2');
+// Mysql connection from index.js file
 const dbConnector = require('./index');
 
 // Imports
-const { showDepts, addDept, deleteDept } = require('./Queries/departmentQueries');
-// const { showRoles } = require('./Queries/roleQueries');
+const { allDepts, addDept, deleteDept } = require('./Queries/departmentQueries');
+const { allRoles, addRole, deleteRole } = require('./Queries/roleQueries');
 
 // Prompts to confirm what the user wishes to do
 function chooseOpt() {
@@ -21,8 +21,8 @@ function chooseOpt() {
                     'Add department',
                     'Delete department',
                     'View all roles',
-                    // 'Add role',
-                    // 'Delete role',
+                    'Add role',
+                    'Delete role',
                     // 'View all employees',
                     // 'Add employee',
                     // 'Delete employee',
@@ -34,7 +34,7 @@ function chooseOpt() {
     ).then(opt => {
         switch (opt.selectElement) {
             case 'View all departments':
-                showDepts();
+                allDepts();
                 // looper();
                 break;
             case 'Add department':
@@ -44,15 +44,15 @@ function chooseOpt() {
             case 'Delete department':
                 deleteDept();
                 break;
-            // case 'View all roles':
-            //     allRoles();
-            //     break;
-            // case 'Add role':
-            //     addRole();
-            //     break;
-            // case 'Delete role':
-            //     deleteRole();
-            //     break;
+            case 'View all roles':
+                allRoles();
+                break;
+            case 'Add role':
+                addRole();
+                break;
+            case 'Delete role':
+                deleteRole();
+                break;
             // case 'View all employees':
             //     allEmployees();
             //     break;
