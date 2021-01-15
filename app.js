@@ -20,7 +20,7 @@ function chooseOpt() {
                     'View all departments',
                     'Add department',
                     'Delete department',
-                    'View all roles',
+                    // 'View all roles',
                     // 'Add role',
                     // 'Delete role',
                     // 'View all employees',
@@ -94,14 +94,14 @@ dbConnector.connect(err => {
 
     console.log("Connected to mysql server.");
     // mysql query to create db
-    dbConnector.query("USE tracker", function (err, res) {
-        if (err) throw err;
-        console.log("Database tracker synced!");
+    // dbConnector.query("USE tracker", function (err, res) {
+    //     if (err) throw err;
+    //     console.log("Database tracker synced!");
 
         // Function for inquirer prompt (below)
         chooseOpt();
     })
 
-})
+// })
 
 module.exports.chooseOpt = chooseOpt;
