@@ -18,7 +18,10 @@ function allRoles() {
 // Function to add role
 function addRole() {
     const sqlSelect = `SELECT * FROM department`;
-    let deptListing = sqlSelect.map(elem => elem.name);
+    const selectDept = dbConnector.query(sqlSelect, (err, res) => {
+        if (err) throw err;
+    })
+    let deptListing = selectDept.map(elem => elem.name);
     inquirer.prompt([
         {
             type: 'input',
@@ -69,9 +72,11 @@ function addRole() {
 
 // Function to delete role
 async function deleteRole() {
-    sqlRSelect = `SELECT * FROM role`;
-    dbConnector.query(sqlRSelect, []);
-    roleArray = sqlRSelect.map(elem => elem.title);
+    const sqlRSelect = `SELECT * FROM role`;
+    const roleSelector = dbConnector.query(sqlRSelect, (err, res) => {
+        if (err) throw err;
+    });
+    roleArray = roleSelector.map(elem => elem.title);
     inquirer.prompt([
         {
             type: 'list',
