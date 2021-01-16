@@ -4,10 +4,6 @@ const inquirer = require('inquirer');
 // Mysql connection from index.js file
 const dbConnector = require('./index');
 
-// Imports
-const { allDepts, addDept, deleteDept } = require('./Queries/departmentQueries');
-const { allRoles, addRole, deleteRole } = require('./Queries/roleQueries');
-
 // Prompts to confirm what the user wishes to do
 function chooseOpt() {
     inquirer.prompt(
@@ -94,9 +90,8 @@ dbConnector.connect(err => {
     // mysql query to create db
     dbConnector.query("USE tracker", function (err, res) {
         if (err) throw err;
-        console.log("Database tracker synced!");
 
-        // Function for inquirer prompt (below)
+        // Return to inquirer prompt
         chooseOpt();
     })
 })
@@ -177,25 +172,34 @@ function addRole() {
 // Function to delete role
 function deleteRole() {
     const sqlRSelect = `SELECT * FROM role`;
-    const roleSelector = dbConnector.query(sqlRSelect, (err, res) => {
+    dbConnector.query(sqlRSelect, (err, res) => {
         if (err) throw err;
-    });
-    //do the name value map that you did in addRole above
-    roleArray = roleSelector.map(elem => elem.title);
-    inquirer.prompt([
-        {
-            type: 'list',
-            name: 'roleDelete',
-            message: 'Choose role that you wish to delete',
-            choices: roleArray
-        }
-    ]).then(roleToGo => {
-        let deletedRole = roleToGo.roleDelete;
-        sqlRDelete = `DELETE FROM role WHERE id=?`;
-        dbConnector.query(sqlRDelete, [deletedRole], (err, res) => {
-            if (err) throw err;
-            console.log("Role was successfully deleted!");
-            chooseOpt();
+
+        const roleArray = res.map(elem => {
+            return (
+                {
+                    name: elem.title,
+                    value: elem.id
+                }
+            )
+        });
+
+        //do the name value map that you did in addRole above
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'roleDelete',
+                message: 'Choose role that you wish to delete',
+                choices: roleArray
+            }
+        ]).then(roleToGo => {
+            let deletedRole = roleToGo.roleDelete;
+            sqlRDelete = `DELETE FROM role WHERE id=?`;
+            dbConnector.query(sqlRDelete, [deletedRole], (err, res) => {
+                if (err) throw err;
+                console.log("Role was successfully deleted!");
+                chooseOpt();
+            })
         })
     })
 }
