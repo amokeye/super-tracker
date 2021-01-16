@@ -76,7 +76,7 @@ function chooseOpt() {
 
             default:
                 // dbConnector.end();
-                chooseOpt();
+                // chooseOpt();
         }
     });
 }
