@@ -28,4 +28,11 @@ VALUES
     ('Joseph','Anderson',4,NULL),
     ('Alyssa','Johnson',5,NULL),
     ('Heidi','Guerrero',6,NULL),
-    ('Lucious','Lebeaux',7,NULL);
+    ('Lucious','Lebeaux',7,NULL),
+    ('Marie','Calendar',1,NULL)
+    ('Brandon','Callender',2,2),
+    ('Fe','Bongolan',3,3),
+    ('Jeff','Ogar',4,4),
+    ('Johaina','Crisostomo',5,5),
+    ('Madeline','Lesser',6,6),
+    ('Sachi','Ihara',7,7);

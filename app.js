@@ -19,9 +19,9 @@ function chooseOpt() {
                     'View all roles',
                     'Add role',
                     'Delete role',
-                    // 'View all employees',
-                    // 'Add employee',
-                    // 'Delete employee',
+                    'View all employees',
+                    'Add employee',
+                    'Delete employee',
                     // 'Update employee role',
                     // 'Exit'
                 ]
@@ -109,7 +109,7 @@ function allRoles() {
 
 // Function to add role
 function addRole() {
-    const sqlSelect = `SELECT * FROM department`;
+    const sqlSelect = `SELECT * FROM role`;
     dbConnector.query(sqlSelect, (err, res) => {
         if (err) throw err;
 
@@ -207,7 +207,8 @@ function deleteRole() {
 
 // Function to show all employee info
 function allEmps() {
-    sqlAllEmps = `SELECT employee.id, employee.first_name, employee.last_name, role.title AS emp_title, role.salary AS emp_salary`;
+    sqlAllEmps = `SELECT employee.id, employee.first_name, employee.last_name, role.title AS emp_title, role.salary AS emp_salary,
+        CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id LEFT JOIN employee manager ON manager.id`;
     dbConnector.query(sqlAllEmps, (err, res) => { 
         if (err) throw err;
         console.table(res);
