@@ -22,7 +22,7 @@ function chooseOpt() {
                     'View all employees',
                     'Add employee',
                     'Delete employee',
-                    // 'Update employee role',
+                    'Update employee role',
                     // 'Exit'
                 ]
             }
@@ -183,7 +183,7 @@ function allRoles() {
 
 // Function to add role
 function addRole() {
-    const sqlSelect = `SELECT * FROM role`;
+    const sqlSelect = `SELECT * FROM department`;
     dbConnector.query(sqlSelect, (err, res) => {
         if (err) throw err;
 
@@ -258,7 +258,6 @@ function deleteRole() {
             )
         });
 
-        //do the name value map that you did in addRole above
         inquirer.prompt([
             {
                 type: 'list',
@@ -282,109 +281,138 @@ function deleteRole() {
 // Function to show all employee info
 function allEmps() {
     sqlAllEmps = `SELECT employee.id, employee.first_name, employee.last_name, role.title AS emp_title, role.salary AS emp_salary,
-        CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id LEFT JOIN employee manager ON manager.id`;
-    dbConnector.query(sqlAllEmps, (err, res) => { 
+        CONCAT(manager.first_name, " ", manager.last_name) AS manager FROM employee LEFT JOIN role ON employee.role_id=role.id LEFT JOIN employee manager ON manager.id=employee.manager_id`;
+    dbConnector.query(sqlAllEmps, (err, res) => {
         if (err) throw err;
         console.table(res);
+
+        // Return to choice prompt
+        chooseOpt();
     })
-    
-    // Return to choice prompt
-    chooseOpt();
 }
 
 // Function to add an employee
 function addEmp() {
-    const sqlEmpList = `SELECT role.title FROM role`;
-    const empList = dbConnector.query(sqlEmpList, (err, res) => {
+    const sqlEmpList = `SELECT role.title, role.id FROM role`;
+    dbConnector.query(sqlEmpList, (err, res) => {
         if (err) throw err;
-    });
-    const sqlNamesList = `SELECT employee.first_name, employee.last_name FROM employee`;
-    const namesList = dbConnector.query(sqlNamesList, (err, res) => {
-        if (err) throw err;
-    });
-    const roleName = empList.map(elem => elem.title);
+        const roleNameArray = res.map(elem => {
+            return (
+                {
+                    name: elem.title,
+                    value: elem.id
+                }
+            )
+        });
 
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'empFirst',
-            message: 'Please enter employee first name.',
-            // Validate entry
-            validate: firstName => {
-                if ((isNaN(firstName)) && firstName.length > 0) {
-                    return true;
-                } else {
-                    console.log("Please enter a valid first name!");
-                }
-            }
-        },
-        {
-            type: 'input',
-            name: 'empLast',
-            message: 'Please enter employee last name.',
-            validate: lastName => {           //validation the entry
-                if ((isNaN(lastName)) && lastName.length > 0) {
-                    return true;
-                } else {
-                    console.log("Please enter a valid last name!");
-                }
-            }
-        },
-        {
-            type: 'list',
-            name: 'selectRole',
-            message: 'Please select the role for the new employee.',
-            choices: roleName
-        },
-        {
-            type: 'confirm',
-            name: 'ManagerConf',
-            message: 'Does this employee have a manager?',
-            default: false,
-        },
-        {
-            type: 'list',
-            name: 'chooseManager',
-            message: 'Please choose manager from list below:',
-            choices: namesList,
-            when: ({ ManagerConf }) => ManagerConf
-        }
-  
-    ]).then(newEmp => {
-        let newFirst = newEmp.empFirst;
-        let newLast = newEmp.empLast;
-        let newRole = newEmp.selectRole;
-        let manOrNot = newEmp.chooseManager || null;
-  
-        //sql consult insert  a employee
-        connection.query('INSERT INTO employee SET first_name=?,last_name=?,role_id=?,manager_id=? ', [newFirst, newLast, newRole, manOrNot], (err, res) => {
+
+        const sqlNamesList = `SELECT CONCAT(employee.first_name, " ", employee.last_name) AS fullName, role_id FROM employee`;
+        dbConnector.query(sqlNamesList, (err, res) => {
             if (err) throw err;
-            console.log("Employee successfully added!");
-            chooseOpt();
+            const managerList = res.map(elem => {
+                return (
+                    {
+                        name: elem.fullName,
+                        value: elem.role_id
+                    }
+                )
+            })
+
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'empFirst',
+                    message: 'Please enter employee first name.',
+                    // Validate entry
+                    validate: firstName => {
+                        if ((isNaN(firstName)) && firstName.length > 0) {
+                            return true;
+                        } else {
+                            console.log("Please enter a valid first name!");
+                        }
+                    }
+                },
+                {
+                    type: 'input',
+                    name: 'empLast',
+                    message: 'Please enter employee last name.',
+                    validate: lastName => {           //validation the entry
+                        if ((isNaN(lastName)) && lastName.length > 0) {
+                            return true;
+                        } else {
+                            console.log("Please enter a valid last name!");
+                        }
+                    }
+                },
+                {
+                    type: 'list',
+                    name: 'selectRole',
+                    message: 'Please select the role for the new employee.',
+                    choices: roleNameArray
+                },
+                {
+                    type: 'confirm',
+                    name: 'ManagerConf',
+                    message: 'Does this employee have a manager?',
+                    default: false,
+                },
+                {
+                    type: 'list',
+                    name: 'chooseManager',
+                    message: 'Please choose manager from list below:',
+                    choices: managerList,
+                    when: ({ ManagerConf }) => ManagerConf
+                }
+
+            ]).then(newEmp => {
+                let newFirst = newEmp.empFirst;
+                let newLast = newEmp.empLast;
+                let newRole = newEmp.selectRole;
+                let manOrNot = newEmp.chooseManager || null;
+
+                //sql consult insert  a employee
+                dbConnector.query('INSERT INTO employee SET first_name=?,last_name=?,role_id=?,manager_id=? ', [newFirst, newLast, newRole, manOrNot], (err, res) => {
+                    if (err) throw err;
+                    console.log("Employee successfully added!");
+                    chooseOpt();
+                })
+            })
         })
     })
 }
 
 
+
+
+
 // Function to delete employee
 function deleteEmp() {
-    const sqlNamesList = `SELECT employee.first_name, employee.last_name FROM employee`;
-    const namesList = dbConnector.query(sqlNamesList, (err, res) => {
+    const sqlNamesList = `SELECT CONCAT(employee.first_name, " ", employee.last_name) AS fullName, employee.id AS empID FROM employee`;
+    dbConnector.query(sqlNamesList, (err, res) => {
         if (err) throw err;
-    });
-    inquirer.prompt([
-        {
-            type: 'list',
-            name: 'empDelete',
-            message: 'Select employee you wish to delete.',
-            choices: namesList
-        }
-    ]).then(empToGo => {
-        let deleteEmp = empToGo.empDelete;
-        dbConnector.query('DELETE FROM employee WHERE id=? ', [deleteEmp], (err, res) => {
-            if (err) throw err;
-            console.log("Employee successfully deleted!");
-            chooseOpt();
+        const delList = res.map(elem => {
+            return (
+                {
+                    name: elem.fullName,
+                    value: elem.empID
+                }
+            )
+        })
+
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'empDelete',
+                message: 'Select employee you wish to delete.',
+                choices: delList
+            }
+        ]).then(empToGo => {
+            let deleteEmp = empToGo.empDelete;
+            dbConnector.query(`DELETE FROM employee WHERE employee.id=?`, [deleteEmp], (err, res) => {
+                if (err) throw err;
+                console.log("Employee successfully deleted!");
+                chooseOpt();
+            })
         })
     })
 }
@@ -392,27 +420,41 @@ function deleteEmp() {
 
 // Function to update employee role
 function updateRole() {
-    const sqlEmpList = `SELECT first_name, last_name FROM employee`;
-    const nameList = dbConnector.query(sqlEmpList, (err, res) => {
+    const sqlEmpList = `SELECT CONCAT(employee.first_name, " ", employee.last_name) AS fullName, employee.role_id FROM employee`;
+    dbConnector.query(sqlEmpList, (err, res) => {
         if (err) throw err;
-    });
-    const sqlRoleList = `SELECT role.title FROM role`;
+        const fullNameArray = res.map(elem => {
+            return (
+                {
+                    name: elem.fullName,
+                }
+            )
+        })
+    
+    const sqlRoleList = `SELECT role.title AS updatedTitle FROM role`;
     const roleList = dbConnector.query(sqlRoleList, (err, res) => {
         if (err) throw err;
-    })
-   
+        const updatedRole = res.map(elem => {
+            return (
+                {
+                    name: elem.updatedTitle,
+                }
+            )
+        })
+
+
     inquirer.prompt([
         {
             type: 'list',
             name: 'fullName',
             message: 'Please select the employee whose role you wish to update.',
-            choices: nameList
+            choices: fullNameArray
         },
         {
             type: 'list',
             name: 'selectRole',
             message: 'Please select the new role for the employee',
-            choices: roleList
+            choices: updatedRole
         }
     ]).then(updater => {
         let empUName = updater.fullName;
@@ -421,9 +463,10 @@ function updateRole() {
         dbConnector.query('UPDATE employee SET employee.role_id=? WHERE employee.id=?', [newRole, empUName], (err, res) => {
             if (err) throw err;
             console.log("The employee's role has been updated!");
-            
+
             // Return to choice prompt
             chooseOpt();
         })
     })
+})})
 };
