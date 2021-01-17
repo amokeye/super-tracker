@@ -22,17 +22,17 @@ VALUES
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id) 
 VALUES
+    ('Marie','Calendar',1,NULL),
     ('Wilfredo','Umanzor',1,1),
     ('Yeyby','Meza',2,NULL),
+    ('Brandon','Callender',2,3),
     ('Elizabeth','Nguyen',3,NULL),
+    ('Fe','Bongolan',3,5),
     ('Joseph','Anderson',4,NULL),
+    ('Jeff','Ogar',4,7),
     ('Alyssa','Johnson',5,NULL),
+    ('Johaina','Crisostomo',5,9),
     ('Heidi','Guerrero',6,NULL),
+    ('Madeline','Lesser',6,11),
     ('Lucious','Lebeaux',7,NULL),
-    ('Marie','Calendar',1,NULL)
-    ('Brandon','Callender',2,2),
-    ('Fe','Bongolan',3,3),
-    ('Jeff','Ogar',4,4),
-    ('Johaina','Crisostomo',5,5),
-    ('Madeline','Lesser',6,6),
-    ('Sachi','Ihara',7,7);
+    ('Sachi','Ihara',7,13);
