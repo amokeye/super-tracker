@@ -1,5 +1,6 @@
 // Dependencies
 const inquirer = require('inquirer');
+require('console.table');
 
 // Mysql connection from index.js file
 const dbConnector = require('./index');
@@ -23,7 +24,7 @@ function chooseOpt() {
                     'Add employee',
                     'Delete employee',
                     'Update employee role',
-                    // 'Exit'
+                    'Exit'
                 ]
             }
         ]
@@ -69,7 +70,7 @@ function chooseOpt() {
 }
 
 
-// Default response for any other request not found
+// Confirm connection to mysql2 server and begin prompt
 dbConnector.connect(err => {
     if (err) throw err;
 
@@ -78,7 +79,7 @@ dbConnector.connect(err => {
     dbConnector.query(`USE tracker`, function (err, res) {
         if (err) throw err;
 
-        // Return to inquirer prompt
+        // Return to choice prompt
         chooseOpt();
     })
 })
@@ -91,6 +92,7 @@ function allDepts() {
     dbConnector.query(sqlShow, (err, res) => {
         if (err) throw err;
         console.table(res);
+
         // Return to the choice prompt
         chooseOpt();
     })
@@ -163,7 +165,8 @@ function allRoles() {
     dbConnector.query(sqlRoles, (err, res) => {
         if (err) throw err;
         console.table(res);
-        //call the menu for show a question again
+
+        // Return to choice prompt
         chooseOpt();
     });
 }
@@ -283,6 +286,7 @@ function addEmp() {
     const sqlEmpList = `SELECT role.title, role.id FROM role`;
     dbConnector.query(sqlEmpList, (err, res) => {
         if (err) throw err;
+        
         const roleNameArray = res.map(elem => {
             return (
                 {
