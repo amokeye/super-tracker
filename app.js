@@ -61,8 +61,9 @@ function chooseOpt() {
                 updateRole();
                 break;
             case 'Exit':
-                dbConnector.end();
-
+                console.log("Thank you for using Super Tracker!")
+                dbConnector.close();
+                break;
             default:
                 chooseOpt();
         }
