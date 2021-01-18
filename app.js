@@ -59,28 +59,15 @@ function chooseOpt() {
             case 'Update employee role':
                 updateRole();
                 break;
-            // case `Update a Employee manager's name`:
-            //     updateEmpManager()
-            //     break;
-            // case 'Show Employee by department':
-            //     showEmpbyDept();
-            //     break;
-            // case 'Exit':
-            // dbConnector.end();
+            case 'Exit':
+                dbConnector.end();
 
             default:
-                // dbConnector.end();
                 chooseOpt();
-
         }
     });
 }
 
-// function allRoles() {
-//     const rows = showRoles();
-//     console.table(rows);
-//     chooseOpt();
-// }
 
 // Default response for any other request not found
 dbConnector.connect(err => {
@@ -88,7 +75,7 @@ dbConnector.connect(err => {
 
     console.log("Connected to mysql server.");
     // mysql query to create db
-    dbConnector.query("USE tracker", function (err, res) {
+    dbConnector.query(`USE tracker`, function (err, res) {
         if (err) throw err;
 
         // Return to inquirer prompt
@@ -133,7 +120,7 @@ function addDept() {
             if (err) throw err;
 
             // Confirmed new dept was added
-            console.log("New department successfully added!");
+            console.log("New department successfully added! View all departments to see newly added department.");
 
             // Return to choice prompt
             chooseOpt();
@@ -162,7 +149,7 @@ function deleteDept() {
             const sqlDelete = `DELETE FROM department WHERE name = ?`;
             dbConnector.query(sqlDelete, [deletedDept], (err, res) => {
                 if (err) throw err;
-                console.log(`Department: ${deletedDept} successfully deleted!`);
+                console.log("Department successfully deleted!");
                 chooseOpt();
             });
         })
@@ -235,7 +222,7 @@ function addRole() {
             const sqlNewRole = `INSERT INTO role SET title=?,salary=?,department_id=?`;
             dbConnector.query(sqlNewRole, [roleTitle, roleSalary, roleID], (err, res) => {
                 if (err) throw err;
-                console.log("New role successfully added!");
+                console.log("New role successfully added! View all roles to see newly added role.");
                 chooseOpt();
             })
         })
@@ -365,24 +352,21 @@ function addEmp() {
                 }
 
             ]).then(newEmp => {
+                // Variables to show
                 let newFirst = newEmp.empFirst;
                 let newLast = newEmp.empLast;
                 let newRole = newEmp.selectRole;
                 let manOrNot = newEmp.chooseManager || null;
 
-                //sql consult insert  a employee
                 dbConnector.query('INSERT INTO employee SET first_name=?,last_name=?,role_id=?,manager_id=? ', [newFirst, newLast, newRole, manOrNot], (err, res) => {
                     if (err) throw err;
-                    console.log("Employee successfully added!");
+                    console.log("Employee successfully added! View all employees to see newly added employee.");
                     chooseOpt();
                 })
             })
         })
     })
 }
-
-
-
 
 
 // Function to delete employee
@@ -420,53 +404,52 @@ function deleteEmp() {
 
 // Function to update employee role
 function updateRole() {
-    const sqlEmpList = `SELECT CONCAT(employee.first_name, " ", employee.last_name) AS fullName, employee.role_id FROM employee`;
+    const sqlEmpList = `SELECT CONCAT(employee.first_name, " ", employee.last_name) AS fullName, employee.id AS empID, employee.role_id, role.title AS titleList FROM employee LEFT JOIN role ON employee.role_id = role.id`;
     dbConnector.query(sqlEmpList, (err, res) => {
         if (err) throw err;
-        const fullNameArray = res.map(elem => {
+        const empArray = res.map(elem => {
             return (
                 {
                     name: elem.fullName,
+                    value: elem.empID
                 }
             )
-        })
-    
-    const sqlRoleList = `SELECT role.title AS updatedTitle FROM role`;
-    const roleList = dbConnector.query(sqlRoleList, (err, res) => {
-        if (err) throw err;
-        const updatedRole = res.map(elem => {
+        });
+
+        const titleArray = res.map(elem => {
+            if (err) throw err;
             return (
                 {
-                    name: elem.updatedTitle,
+                    name: elem.titleList,
+                    value: elem.role_id
                 }
             )
-        })
+        });
 
+        inquirer.prompt([
+            {
+                type: 'list',
+                name: 'fullName',
+                message: 'Please select the employee whose role you wish to update.',
+                choices: empArray
+            },
+            {
+                type: 'list',
+                name: 'selectRole',
+                message: 'Please select the new role for the employee',
+                choices: titleArray
+            }
+        ]).then(updater => {
+            let newRole = updater.selectRole;
+            let updatedEmp = updater.fullName;
 
-    inquirer.prompt([
-        {
-            type: 'list',
-            name: 'fullName',
-            message: 'Please select the employee whose role you wish to update.',
-            choices: fullNameArray
-        },
-        {
-            type: 'list',
-            name: 'selectRole',
-            message: 'Please select the new role for the employee',
-            choices: updatedRole
-        }
-    ]).then(updater => {
-        let empUName = updater.fullName;
-        let newRole = updater.selectRole;
-        //query consult update role for a employee
-        dbConnector.query('UPDATE employee SET employee.role_id=? WHERE employee.id=?', [newRole, empUName], (err, res) => {
-            if (err) throw err;
-            console.log("The employee's role has been updated!");
+            dbConnector.query(`UPDATE employee SET role_id=? WHERE id=?`, [newRole, updatedEmp], (err, res) => {
+                if (err) throw err;
+                console.log("The employee's role has been updated! View all employees to see employee with new role.");
 
-            // Return to choice prompt
-            chooseOpt();
+                // Return to choice prompt
+                chooseOpt();
+            })
         })
     })
-})})
 };
