@@ -3,7 +3,7 @@ const inquirer = require('inquirer');
 require('console.table');
 
 // Mysql connection from index.js file
-const dbConnector = require('./index');
+const dbConnector = require('./connection');
 
 // Prompts to confirm what the user wishes to do
 function chooseOpt() {
